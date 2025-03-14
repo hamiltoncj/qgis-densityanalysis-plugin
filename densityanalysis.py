@@ -225,8 +225,13 @@ class DensityAnalysis(object):
             return(True)
         try:
             import h3
-            self.h3_installed = True
-            return(True)
+            vers = h3.versions()["python"].split(".")
+            maj = int(vers[0])
+            if maj >= 4: # This works with H3 version 4 or greater
+                self.h3_installed = True
+            else:
+                self.h3_installed = False
+            return(self.h3_installed)
         except Exception:
             pass
         # H3 is not available

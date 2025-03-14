@@ -9,7 +9,6 @@
  ***************************************************************************/
 """
 import os
-import json
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QVariant, QUrl
 from qgis.core import Qgis, QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem,  QgsFeature, QgsGeometry, QgsPointXY, QgsProject
@@ -144,9 +143,12 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
             # The extent needs to be in EPSG:4326
             transform = QgsCoordinateTransform(extent_crs, epsg4326, QgsProject.instance())
             extent = transform.transform(extent)
-        json_str = QgsGeometry.fromRect(extent).asJson()
-        js = json.loads(json_str)
-        h3_ids = h3.polyfill(js, resolution, geo_json_conformant=True)
+        xmin = extent.xMinimum()
+        xmax = extent.xMaximum()
+        ymin = extent.yMinimum()
+        ymax = extent.yMaximum()
+        h3poly = h3.LatLngPoly([(ymin, xmin), (ymin, xmax), (ymax, xmax), (ymax, xmin)])
+        h3_ids = h3.polygon_to_cells(h3poly, resolution)
         if feedback.isCanceled():
             raise QgsProcessingException('Operation canceled')
         feedback.setProgress(50)
@@ -155,7 +157,7 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
 
         total = 50 / len(h3_ids)
         for i, h3str in enumerate(h3_ids):
-            coords = h3.h3_to_geo_boundary(h3str)
+            coords = h3.cell_to_boundary(h3str)
             geom = QgsGeometry.fromPolygonXY([[QgsPointXY(lon, lat) for lat, lon in coords], ])
             f = QgsFeature()
             f.setGeometry(geom)

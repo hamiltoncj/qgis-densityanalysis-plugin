@@ -170,7 +170,7 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
                         pt = feature.geometry().asPoint()
                         if src_crs != epsg4326:
                             pt = transform.transform(pt)
-                        h = h3.geo_to_h3(pt.y(), pt.x(), resolution)
+                        h = h3.latlng_to_cell(pt.y(), pt.x(), resolution)
                         if h == 0: # Check to see if the input coordinates were invalid
                             continue
                         weight = feature[weight_field]
@@ -190,7 +190,7 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
                         pt = feature.geometry().asPoint()
                         if src_crs != epsg4326:
                             pt = transform.transform(pt)
-                        h = h3.geo_to_h3(pt.y(), pt.x(), resolution)
+                        h = h3.latlng_to_cell(pt.y(), pt.x(), resolution)
                         if h == 0: # Check to see if the input coordinates were invalid
                             continue
                         if h in ghash:
@@ -209,7 +209,7 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
         for cnt, key in enumerate(ghash.keys()):
             val = ghash[key]
             try:
-                coords = h3.h3_to_geo_boundary(key)
+                coords = h3.cell_to_boundary(key)
             except:
                 continue
             pts = []
@@ -219,7 +219,7 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
             # pts.append(pts[0])
             f = QgsFeature()
             f.setGeometry(QgsGeometry.fromPolygonXY([pts]))
-            f.setAttributes([cnt, h3.h3_to_string(key), val])
+            f.setAttributes([cnt, h3.int_to_str(key), val])
             sink.addFeature(f)
             if cnt % 100 == 0:
                 feedback.setProgress(int(cnt * total)+85)
