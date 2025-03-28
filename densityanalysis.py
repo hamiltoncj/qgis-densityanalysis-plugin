@@ -225,8 +225,8 @@ class DensityAnalysis(object):
             return(True)
         try:
             import h3
-            vers = h3.versions()["python"].split(".")
-            maj = int(vers[0])
+            v = h3.versions()
+            maj = int(v['python'][0])
             if maj >= 4: # This works with H3 version 4 or greater
                 self.h3_installed = True
             else:
