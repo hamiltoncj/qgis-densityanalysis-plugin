@@ -204,6 +204,7 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
             cumulative += incremental
 
         if len(ghash) == 0:
+            feedback.reportError('No points were found in the input layers')
             return {}
         total = 15 / len(ghash)
         for cnt, key in enumerate(ghash.keys()):

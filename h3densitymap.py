@@ -205,7 +205,11 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
         if use_weight:
             alg_params['WEIGHT'] = weight_field
         outputs['CreateGrid'] = processing.run('densityanalysis:h3density', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
-        results['OUTPUT'] = outputs['CreateGrid']['OUTPUT']
+        if 'OUTPUT' in outputs['CreateGrid']:
+            results['OUTPUT'] = outputs['CreateGrid']['OUTPUT']
+        else:
+            feedback.reportError('There were no valid points found in the input layer')
+            return {}
 
         if feedback.isCanceled():
             return {}

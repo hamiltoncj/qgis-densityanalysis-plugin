@@ -130,6 +130,10 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
             feedback.reportError(h3InstallString)
             return {}
         source = self.parameterAsSource(parameters, 'INPUT', context)
+        featureCnt = source.featureCount()
+        if featureCnt == 0:
+            feedback.reportError('There are no features in the input layer')
+            return {}
         resolution = self.parameterAsInt(parameters, 'RESOLUTION', context)
         if 'WEIGHT' in parameters and parameters['WEIGHT']:
             use_weight = True
@@ -150,7 +154,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         if src_crs != epsg4326:
             transform = QgsCoordinateTransform(src_crs, epsg4326, QgsProject.instance())
 
-        total = 85.0 / source.featureCount() if source.featureCount() else 0
+        total = 85.0 / featureCnt if featureCnt else 0
         ghash = {}
 
         iterator = source.getFeatures()
