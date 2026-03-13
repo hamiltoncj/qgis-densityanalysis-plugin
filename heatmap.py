@@ -37,24 +37,24 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
         self.canvas = iface.mapCanvas()
         self.iface = iface
         self.clearButton.setIcon(QIcon(':/images/themes/default/mIconClearText.svg'))
-        self.dataComboBox.setFilters(QgsMapLayerProxyModel.PointLayer)
+        self.dataComboBox.setFilters(QgsMapLayerProxyModel.Filter.PointLayer)
         self.dataComboBox.layerChanged.connect(self.layerChanged)
-        self.densityHeatmapComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.densityHeatmapComboBox.setFilters(QgsMapLayerProxyModel.Filter.PolygonLayer)
         self.densityHeatmapComboBox.layerChanged.connect(self.layerChanged)
-        self.idComboBox.setFilters(QgsFieldProxyModel.Int | QgsFieldProxyModel.LongLong)
+        self.idComboBox.setFilters(QgsFieldProxyModel.Filter.Int | QgsFieldProxyModel.Filter.LongLong)
         self.idComboBox.fieldChanged.connect(self.fieldChanged)
-        self.countComboBox.setFilters(QgsFieldProxyModel.Numeric)
+        self.countComboBox.setFilters(QgsFieldProxyModel.Filter.Numeric)
         self.countComboBox.fieldChanged.connect(self.fieldChanged)
         self.zoomComboBox.currentIndexChanged.connect(self.zoomModeChanged)
-        self.resultsTable.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.resultsTable.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.resultsTable.setColumnCount(2)
         self.resultsTable.setSortingEnabled(False)
         self.resultsTable.setHorizontalHeaderLabels(['ID','Score'])
-        self.resultsTable.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.resultsTable.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.resultsTable.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.resultsTable.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.resultsTable.itemSelectionChanged.connect(self.select_feature)
         # self.resultsTable.itemClicked.connect(self.select_feature)
-        self.rb = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
+        self.rb = QgsRubberBand(self.canvas, QgsWkbTypes.GeometryType.LineGeometry)
         self.rb.setColor(settings.line_flash_color)
         self.rb.setWidth(settings.line_flash_width)
 
@@ -72,12 +72,12 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
 
     def zoomModeChanged(self, index):
         if index == 2:
-            self.resultsTable.setSelectionMode(QAbstractItemView.SingleSelection)
+            self.resultsTable.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
             layer = self.densityHeatmapComboBox.currentLayer()
             if layer:
                 layer.setSubsetString('')
         else:
-            self.resultsTable.setSelectionMode(QAbstractItemView.ExtendedSelection)
+            self.resultsTable.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
     def layerChanged(self):
         if not self.isVisible():
@@ -140,7 +140,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
                 rect = QgsRectangle(center.x(), center.y(), center.x(), center.y())
                 self.canvas.setExtent(rect)
             elif auto_zoom == 2:  # Pan and flash point
-                pt = self.resultsTable.item(selectedItems[0].row(), 0).data(Qt.UserRole)
+                pt = self.resultsTable.item(selectedItems[0].row(), 0).data(Qt.ItemDataRole.UserRole)
                 pt = xform.transform(pt.x(), pt.y())
                 rect = QgsRectangle(pt.x(), pt.y(), pt.x(), pt.y())
                 self.canvas.setExtent(rect)
@@ -166,7 +166,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
             id = f[id_field]
             self.resultsTable.insertRow(i)
             item = QTableWidgetItem('{}'.format(id))
-            item.setData(Qt.UserRole, f.geometry().centroid().asPoint())
+            item.setData(Qt.ItemDataRole.UserRole, f.geometry().centroid().asPoint())
             self.resultsTable.setItem(i, 0, item)
             try:
                 item = QTableWidgetItem('{}'.format(score))
@@ -194,7 +194,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
         horizLine = QgsGeometry.fromPolyline([leftPt, rightPt])
         vertLine = QgsGeometry.fromPolyline([topPt, bottomPt])
 
-        self.rb.reset(QgsWkbTypes.LineGeometry)
+        self.rb.reset(QgsWkbTypes.GeometryType.LineGeometry)
         self.rb.setColor(settings.line_flash_color)
         self.rb.setWidth(settings.line_flash_width)
         self.rb.addGeometry(horizLine, None)

@@ -25,14 +25,14 @@ class RandomStyleAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterVectorLayer(
-                'INPUT', 'Input map layer', [QgsProcessing.TypeVectorAnyGeometry])
+                'INPUT', 'Input map layer', [QgsProcessing.SourceType.TypeVectorAnyGeometry])
         )
         self.addParameter(
             QgsProcessingParameterField(
                 'GROUP_FIELD',
                 'Field used for styling',
                 parentLayerParameterName='INPUT',
-                type=QgsProcessingParameterField.Any,
+                type=QgsProcessingParameterField.DataType.Any,
                 optional=False)
         )
         self.addParameter(
@@ -55,7 +55,7 @@ class RandomStyleAlgorithm(QgsProcessingAlgorithm):
         for value in values:
             symbol = QgsSymbol.defaultSymbol(geomtype)
             if no_outline:
-                symbol.symbolLayer(0).setStrokeStyle(Qt.PenStyle(Qt.NoPen))
+                symbol.symbolLayer(0).setStrokeStyle(Qt.PenStyle(Qt.PenStyle.NoPen))
             category = QgsRendererCategory(value, symbol, str(value))
             categories.append(category)
 
@@ -85,7 +85,7 @@ class RandomStyleAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def createInstance(self):
         return RandomStyleAlgorithm()

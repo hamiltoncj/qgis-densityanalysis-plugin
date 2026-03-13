@@ -28,7 +28,7 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterVectorLayer('INPUT', 'Input polygon layer', 
-                [QgsProcessing.TypeVectorPolygon ],
+                [QgsProcessing.SourceType.TypeVectorPolygon ],
                 optional=False
             )
         )
@@ -37,17 +37,17 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
                 'UNIQUEID',
                 'Unique ID field for list of contributing source polygons',
                 parentLayerParameterName='INPUT',
-                type=QgsProcessingParameterField.Any,
+                type=QgsProcessingParameterField.DataType.Any,
                 optional=True
             )
         )
         self.addParameter(
             QgsProcessingParameterNumber('FILTER', 'Keep polygons with overlap counts >= to this',
-                type=QgsProcessingParameterNumber.Integer, defaultValue=1, minValue=1, optional=False)
+                type=QgsProcessingParameterNumber.Type.Integer, defaultValue=1, minValue=1, optional=False)
         )
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output polygon density',
-                type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None, optional=False)
+                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None, optional=False)
         )
 
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -145,7 +145,7 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def createInstance(self):
         return PolygonVectorDensityAlgorithm()

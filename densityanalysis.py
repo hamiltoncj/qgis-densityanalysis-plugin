@@ -61,7 +61,7 @@ class DensityAnalysis(object):
         self.geohashButton = QToolButton()
         self.geohashButton.setMenu(menu)
         self.geohashButton.setDefaultAction(self.geohashAction)
-        self.geohashButton.setPopupMode(QToolButton.MenuButtonPopup)
+        self.geohashButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
         self.geohashButton.triggered.connect(self.geohashTriggered)
         self.geohashToolbar = self.toolbar.addWidget(self.geohashButton)
 
@@ -92,7 +92,7 @@ class DensityAnalysis(object):
         self.h3Button = QToolButton()
         self.h3Button.setMenu(menu)
         self.h3Button.setDefaultAction(self.h3Action)
-        self.h3Button.setPopupMode(QToolButton.MenuButtonPopup)
+        self.h3Button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
         self.h3Button.triggered.connect(self.h3Triggered)
         self.h3Toolbar = self.toolbar.addWidget(self.h3Button)
 
@@ -202,7 +202,7 @@ class DensityAnalysis(object):
         if not self.heatmap_dialog:
             from .heatmap import HeatmapAnalysis
             self.heatmap_dialog = HeatmapAnalysis(self.iface, self.iface.mainWindow())
-            self.iface.addDockWidget(Qt.RightDockWidgetArea, self.heatmap_dialog)
+            self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.heatmap_dialog)
         self.heatmap_dialog.show()
 
     def densityGridAlgorithm(self):
@@ -225,8 +225,8 @@ class DensityAnalysis(object):
             return(True)
         try:
             import h3
-            v = h3.versions()
-            maj = int(v['python'][0])
+            vers = h3.versions()["python"].split(".")
+            maj = int(vers[0])
             if maj >= 4: # This works with H3 version 4 or greater
                 self.h3_installed = True
             else:

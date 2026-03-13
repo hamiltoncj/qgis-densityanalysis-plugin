@@ -69,7 +69,7 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 'CLASSES',
                 'Number of gradient colors',
-                QgsProcessingParameterNumber.Integer,
+                QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=settings.num_ramp_classes,
                 minValue=2,
                 optional=False)
@@ -92,28 +92,28 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
             raise QgsProcessingException()
             
         if interp == 0: # Discrete
-            interpolation = QgsColorRampShader.Discrete
+            interpolation = QgsColorRampShader.Type.Discrete
         elif interp == 1: # Interpolated
-            interpolation = QgsColorRampShader.Interpolated
+            interpolation = QgsColorRampShader.Type.Interpolated
         elif interp == 2: # Exact
-            interpolation = QgsColorRampShader.Exact
+            interpolation = QgsColorRampShader.Type.Exact
 
         if mode == 0: # Continuous
-            shader_mode = QgsColorRampShader.Continuous
+            shader_mode = QgsColorRampShader.ClassificationMode.Continuous
         elif mode == 1: # Equal Interval
-            shader_mode = QgsColorRampShader.EqualInterval
+            shader_mode = QgsColorRampShader.ClassificationMode.EqualInterval
         elif mode == 2: # Quantile
-            shader_mode = QgsColorRampShader.Quantile
+            shader_mode = QgsColorRampShader.ClassificationMode.Quantile
 
         provider = layer.dataProvider()
-        stats = provider.bandStatistics(1, QgsRasterBandStats.Min | QgsRasterBandStats.Max)
+        stats = provider.bandStatistics(1, QgsRasterBandStats.Stats.Min | QgsRasterBandStats.Stats.Max)
         
         style = QgsStyle.defaultStyle()
         ramp = style.colorRamp(ramp_name)
         if invert:
             ramp.invert()
         color_ramp = QgsColorRampShader(stats.minimumValue, stats.maximumValue, ramp, interpolation, shader_mode)
-        if shader_mode == QgsColorRampShader.Quantile:
+        if shader_mode == QgsColorRampShader.ClassificationMode.Quantile:
             color_ramp.classifyColorRamp(classes=num_classes, band=1, input=provider)
         else:
             color_ramp.classifyColorRamp(classes=num_classes)
@@ -147,7 +147,7 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def createInstance(self):
         return RasterStyleAlgorithm()

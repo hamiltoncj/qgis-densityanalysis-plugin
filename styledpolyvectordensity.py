@@ -32,7 +32,7 @@ class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterVectorLayer('INPUT', 'Input polygon layer', 
-                [QgsProcessing.TypeVectorPolygon ],
+                [QgsProcessing.SourceType.TypeVectorPolygon ],
                 optional=False
             )
         )
@@ -41,13 +41,13 @@ class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
                 'UNIQUEID',
                 'Unique ID field for list of contributing source polygons',
                 parentLayerParameterName='INPUT',
-                type=QgsProcessingParameterField.Any,
+                type=QgsProcessingParameterField.DataType.Any,
                 optional=True
             )
         )
         self.addParameter(
             QgsProcessingParameterNumber('FILTER', 'Keep polygons with overlap counts >= to this',
-                type=QgsProcessingParameterNumber.Integer, defaultValue=1, minValue=1, optional=False)
+                type=QgsProcessingParameterNumber.Type.Integer, defaultValue=1, minValue=1, optional=False)
         )
 
         if Qgis.QGIS_VERSION_INT >= 32200:
@@ -72,11 +72,11 @@ class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
         param = QgsProcessingParameterNumber(
             'CLASSES',
             'Number of gradient colors',
-            QgsProcessingParameterNumber.Integer,
+            QgsProcessingParameterNumber.Type.Integer,
             defaultValue=settings.num_ramp_classes,
             minValue=2,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterEnum(
             'COLOR_RAMP_MODE',
@@ -84,19 +84,19 @@ class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
             options=COLOR_RAMP_MODE,
             defaultValue=settings.color_ramp_mode,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterBoolean(
             'NO_OUTLINE',
             'No feature outlines',
             True,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
 
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output polygon density',
-                type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None, optional=False)
+                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None, optional=False)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -166,7 +166,7 @@ class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def shortHelpString(self):
         file = os.path.dirname(__file__) + '/help/polygondensityvector.help'

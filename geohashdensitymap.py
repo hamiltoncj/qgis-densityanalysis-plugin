@@ -34,10 +34,10 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', [QgsProcessing.TypeVectorPoint])
+            QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', [QgsProcessing.SourceType.TypeVectorPoint])
         )
         param = QgsProcessingParameterNumber('RESOLUTION', 'Geohash resolution',
-                type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=6, maxValue=12, optional=False)
+                type=QgsProcessingParameterNumber.Type.Integer, minValue=1, defaultValue=6, maxValue=12, optional=False)
         if Qgis.QGIS_VERSION_INT >= 31600:
             param.setHelp(
                 '''
@@ -123,18 +123,18 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
             'WEIGHT',
             'Weight field',
             parentLayerParameterName='INPUT',
-            type=QgsProcessingParameterField.Numeric,
+            type=QgsProcessingParameterField.DataType.Numeric,
             optional=True)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterNumber(
             'CLASSES',
             'Number of gradient colors',
-            QgsProcessingParameterNumber.Integer,
+            QgsProcessingParameterNumber.Type.Integer,
             defaultValue=settings.num_ramp_classes,
             minValue=2,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterEnum(
             'COLOR_RAMP_MODE',
@@ -142,19 +142,19 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
             options=COLOR_RAMP_MODE,
             defaultValue=settings.color_ramp_mode,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterBoolean(
             'NO_OUTLINE',
             'No feature outlines',
             True,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
 
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output geohash density map',
-                type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -220,7 +220,7 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def createInstance(self):
         return GeohashDensityMapAlgorithm()

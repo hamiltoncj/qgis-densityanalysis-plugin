@@ -34,18 +34,18 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterVectorLayer('INPUT', 'Input polygon vector layer',
-            [QgsProcessing.TypeVectorPolygon])
+            [QgsProcessing.SourceType.TypeVectorPolygon])
         )
         self.addParameter(
             QgsProcessingParameterExtent('EXTENT', 'Grid extent (defaults to layer extent)', optional=True)
         )
         self.addParameter(
             QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Cell width in measurement units',
-                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
+                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
             QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Cell height in measurement units',
-                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
+                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
             QgsProcessingParameterEnum('UNITS', 'Measurement unit',
@@ -73,8 +73,8 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
                 optional=False)
         )
         param = QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions for output image',
-            type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=settings.max_image_size, optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            type=QgsProcessingParameterNumber.Type.Integer, minValue=1, defaultValue=settings.max_image_size, optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterEnum(
             'INTERPOLATION',
@@ -82,7 +82,7 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
             options=['Discrete','Linear','Exact'],
             defaultValue=1,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
 
         param = QgsProcessingParameterEnum(
@@ -91,16 +91,16 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
             options=['Continuous','Equal Interval','Quantile'],
             defaultValue=2,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterNumber(
             'CLASSES',
             'Number of gradient colors',
-            QgsProcessingParameterNumber.Integer,
+            QgsProcessingParameterNumber.Type.Integer,
             defaultValue=settings.num_ramp_classes,
             minValue=2,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         self.addParameter(
             QgsProcessingParameterRasterDestination('OUTPUT', 'Output polygon density heatmap',
@@ -175,7 +175,7 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def createInstance(self):
         return StyledPolygonRasterDensityAlgorithm()

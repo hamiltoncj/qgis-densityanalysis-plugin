@@ -27,10 +27,10 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterMultipleLayers('INPUT', 'Input point vector layers', QgsProcessing.TypeVectorPoint)
+            QgsProcessingParameterMultipleLayers('INPUT', 'Input point vector layers', QgsProcessing.SourceType.TypeVectorPoint)
         )
         param = QgsProcessingParameterNumber('RESOLUTION', 'H3 Resolution',
-                type=QgsProcessingParameterNumber.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)
+                type=QgsProcessingParameterNumber.Type.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)
         if Qgis.QGIS_VERSION_INT >= 31600:
             param.setHelp(
                 '''
@@ -114,12 +114,12 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
                 'WEIGHT',
                 'Weight field',
                 parentLayerParameterName='INPUT',
-                type=QgsProcessingParameterField.Numeric,
+                type=QgsProcessingParameterField.DataType.Numeric,
                 optional=True)
         )
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output H3 density map',
-                type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -146,7 +146,7 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
         fields.append(QgsField('NUMPOINTS', QVariant.Double))
         (sink, dest_id) = self.parameterAsSink(
             parameters, 'OUTPUT',
-            context, fields, QgsWkbTypes.Polygon, epsg4326)
+            context, fields, QgsWkbTypes.Type.Polygon, epsg4326)
 
         
         ghash = {}
@@ -245,7 +245,7 @@ class H3MultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def createInstance(self):
         return H3MultiLayerDensityAlgorithm()

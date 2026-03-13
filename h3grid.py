@@ -30,7 +30,7 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterExtent('EXTENT', 'Grid extent', optional=False)
         )
         param = QgsProcessingParameterNumber('RESOLUTION', 'H3 Resolution',
-                type=QgsProcessingParameterNumber.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)
+                type=QgsProcessingParameterNumber.Type.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)
         if Qgis.QGIS_VERSION_INT >= 31600:
             param.setHelp(
                 '''
@@ -111,7 +111,7 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(param)
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output H3 grid',
-                type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -137,7 +137,7 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
         fields.append(QgsField('H3HASH', QVariant.String))
         (sink, dest_id) = self.parameterAsSink(
             parameters, 'OUTPUT',
-            context, fields, QgsWkbTypes.Polygon, epsg4326)
+            context, fields, QgsWkbTypes.Type.Polygon, epsg4326)
         
         if extent_crs != epsg4326:
             # The extent needs to be in EPSG:4326
@@ -187,7 +187,7 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def createInstance(self):
         return H3GridAlgorithm()

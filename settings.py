@@ -20,36 +20,36 @@ COLOR_RAMP_MODE = ['Equal Count (Quantile)','Equal Interval','Logarithmic scale'
 
 def conversionToCrsUnits(selected_unit, crs_unit, value):
     if selected_unit == 0:  # Kilometers
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceKilometers, crs_unit)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceUnit.DistanceKilometers, crs_unit)
     elif selected_unit == 1:  # Meters
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceMeters, crs_unit)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceUnit.DistanceMeters, crs_unit)
     elif selected_unit == 2:  # Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceMiles, crs_unit)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceUnit.DistanceMiles, crs_unit)
     elif selected_unit == 3:  # Yards
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceYards, crs_unit)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceUnit.DistanceYards, crs_unit)
     elif selected_unit == 4:  # Feet
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceFeet, crs_unit)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceUnit.DistanceFeet, crs_unit)
     elif selected_unit == 5:  # Nautical Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceNauticalMiles, crs_unit)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceUnit.DistanceNauticalMiles, crs_unit)
     elif selected_unit == 6:  # Degrees
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceDegrees, crs_unit)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceUnit.DistanceDegrees, crs_unit)
     return(measureFactor * value)
 
 def conversionFromCrsUnits(selected_unit, crs_unit, value):
     if selected_unit == 0:  # Kilometers
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceKilometers)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceUnit.DistanceKilometers)
     elif selected_unit == 1:  # Meters
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceMeters)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceUnit.DistanceMeters)
     elif selected_unit == 2:  # Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceMiles)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceUnit.DistanceMiles)
     elif selected_unit == 3:  # Yards
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceYards)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceUnit.DistanceYards)
     elif selected_unit == 4:  # Feet
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceFeet)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceUnit.DistanceFeet)
     elif selected_unit == 5:  # Nautical Miles
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceNauticalMiles)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceUnit.DistanceNauticalMiles)
     elif selected_unit == 6:  # Degrees
-        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceDegrees)
+        measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceUnit.DistanceDegrees)
     return(measureFactor * value)
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(

@@ -36,7 +36,7 @@ class StyleToLayers(QDialog, FORM_CLASS):
             doc = QDomDocument()
             text = QApplication.clipboard().text()
             if not doc.setContent(text):
-                self.iface.messageBar().pushMessage("","Invalid clipboard style content", level=Qgis.Warning, duration=4)
+                self.iface.messageBar().pushMessage("","Invalid clipboard style content", level=Qgis.MessageLevel.Warning, duration=4)
                 return
         total_layers = 0
         success = 0
@@ -59,6 +59,6 @@ class StyleToLayers(QDialog, FORM_CLASS):
                 layer.triggerRepaint()
                 success += 1
 
-        self.iface.messageBar().pushMessage("","Style applied to {} out of {} layers".format(success, total_layers), level=Qgis.Info, duration=4)
+        self.iface.messageBar().pushMessage("","Style applied to {} out of {} layers".format(success, total_layers), level=Qgis.MessageLevel.Info, duration=4)
 
         self.close()

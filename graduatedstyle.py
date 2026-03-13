@@ -29,14 +29,14 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterVectorLayer(
-                'INPUT', 'Input map layer', [QgsProcessing.TypeVectorAnyGeometry ])
+                'INPUT', 'Input map layer', [QgsProcessing.SourceType.TypeVectorAnyGeometry ])
         )
         self.addParameter(
             QgsProcessingParameterField(
                 'GROUP_FIELD',
                 'Field used for styling',
                 parentLayerParameterName='INPUT',
-                type=QgsProcessingParameterField.Any,
+                type=QgsProcessingParameterField.DataType.Any,
                 defaultValue='NUMPOINTS',
                 optional=False)
         )
@@ -63,7 +63,7 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 'CLASSES',
                 'Number of gradient colors',
-                QgsProcessingParameterNumber.Integer,
+                QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=settings.num_ramp_classes,
                 minValue=2,
                 optional=False)
@@ -97,22 +97,22 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         invert = self.parameterAsBool(parameters, 'INVERT', context)
         
         if mode == 0: # Quantile
-            grad_mode = QgsGraduatedSymbolRenderer.Quantile
+            grad_mode = QgsGraduatedSymbolRenderer.Mode.Quantile
         elif mode == 1: # Equal Interval
-            grad_mode = QgsGraduatedSymbolRenderer.EqualInterval
+            grad_mode = QgsGraduatedSymbolRenderer.Mode.EqualInterval
         elif mode == 2: # Logarithmic scale
-            grad_mode = QgsGraduatedSymbolRenderer.Quantile
+            grad_mode = QgsGraduatedSymbolRenderer.Mode.Quantile
         elif mode == 3: # Natural Breaks (Jenks)
-            grad_mode = QgsGraduatedSymbolRenderer.Jenks
+            grad_mode = QgsGraduatedSymbolRenderer.Mode.Jenks
         elif mode == 4: # Pretty Breaks
-            grad_mode = QgsGraduatedSymbolRenderer.Pretty
+            grad_mode = QgsGraduatedSymbolRenderer.Mode.Pretty
         elif mode == 5: # Standard Deviation
-            grad_mode = QgsGraduatedSymbolRenderer.StdDev
+            grad_mode = QgsGraduatedSymbolRenderer.Mode.StdDev
 
         geomtype = layer.geometryType()
         symbol = QgsSymbol.defaultSymbol(geomtype)
         if no_outline:
-            symbol.symbolLayer(0).setStrokeStyle(Qt.PenStyle(Qt.NoPen))
+            symbol.symbolLayer(0).setStrokeStyle(Qt.PenStyle(Qt.PenStyle.NoPen))
         style = QgsStyle.defaultStyle()
         ramp = style.colorRamp(ramp_name)
         if invert:
@@ -153,7 +153,7 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def createInstance(self):
         return GraduatedStyleAlgorithm()

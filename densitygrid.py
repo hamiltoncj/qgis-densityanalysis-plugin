@@ -36,7 +36,7 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterVectorLayer('INPUT', 'Input point vector layer', 
-            [QgsProcessing.TypeVectorPoint])
+            [QgsProcessing.SourceType.TypeVectorPoint])
         )
         self.addParameter(
             QgsProcessingParameterExtent('EXTENT', 'Grid extent (defaults to layer extent)', optional=True)
@@ -48,11 +48,11 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
         )
         self.addParameter(
             QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Cell width in measurement units',
-                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
+                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
             QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Cell height in measurement units',
-                type=QgsProcessingParameterNumber.Double, defaultValue=settings.default_dimension, optional=False)
+                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
         )
         self.addParameter(
             QgsProcessingParameterEnum('UNITS', 'Measurement unit',
@@ -79,29 +79,29 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
         )
 
         param = QgsProcessingParameterNumber('MIN_GRID_COUNT', 'Minimum cell histogram count',
-            type=QgsProcessingParameterNumber.Integer, minValue=0, defaultValue=1)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            type=QgsProcessingParameterNumber.Type.Integer, minValue=0, defaultValue=1)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterNumber('MAX_GRID_SIZE', 'Maximum grid width or height',
-            type=QgsProcessingParameterNumber.Integer, minValue=1, defaultValue=1000, optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+            type=QgsProcessingParameterNumber.Type.Integer, minValue=1, defaultValue=1000, optional=False)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterField(
             'WEIGHT',
             'Weight field',
             parentLayerParameterName='INPUT',
-            type=QgsProcessingParameterField.Numeric,
+            type=QgsProcessingParameterField.DataType.Numeric,
             optional=True)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterNumber(
             'CLASSES',
             'Number of gradient colors',
-            QgsProcessingParameterNumber.Integer,
+            QgsProcessingParameterNumber.Type.Integer,
             defaultValue=settings.num_ramp_classes,
             minValue=2,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterEnum(
             'COLOR_RAMP_MODE',
@@ -109,19 +109,19 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
             options=COLOR_RAMP_MODE,
             defaultValue=settings.color_ramp_mode,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterBoolean(
             'NO_OUTLINE',
             'No feature outlines',
             True,
             optional=False)
-        param.setFlags(param.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
 
         self.addParameter(
             QgsProcessingParameterFeatureSink('OUTPUT', 'Output density heatmap',
-                type=QgsProcessing.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -264,7 +264,7 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
         file = os.path.dirname(__file__) + '/index.html'
         if not os.path.exists(file):
             return ''
-        return QUrl.fromLocalFile(file).toString(QUrl.FullyEncoded)
+        return QUrl.fromLocalFile(file).toString(QUrl.ComponentFormattingOption.FullyEncoded)
 
     def createInstance(self):
         return StyledDensityGridAlgorithm()
