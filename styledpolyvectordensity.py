@@ -24,15 +24,18 @@ from qgis.core import (
     QgsProcessingParameterString,
     QgsProcessingParameterDefinition,
     QgsProcessingParameterFeatureSink
-    )
+)
 import processing
 from .settings import settings, COLOR_RAMP_MODE
+
 
 class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterVectorLayer('INPUT', 'Input polygon layer', 
-                [QgsProcessing.SourceType.TypeVectorPolygon ],
+            QgsProcessingParameterVectorLayer(
+                'INPUT',
+                'Input polygon layer',
+                [QgsProcessing.SourceType.TypeVectorPolygon],
                 optional=False
             )
         )
@@ -46,13 +49,19 @@ class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
             )
         )
         self.addParameter(
-            QgsProcessingParameterNumber('FILTER', 'Keep polygons with overlap counts >= to this',
-                type=QgsProcessingParameterNumber.Type.Integer, defaultValue=1, minValue=1, optional=False)
+            QgsProcessingParameterNumber(
+                'FILTER',
+                'Keep polygons with overlap counts >= to this',
+                type=QgsProcessingParameterNumber.Type.Integer,
+                defaultValue=1,
+                minValue=1,
+                optional=False
+            )
         )
 
         if Qgis.QGIS_VERSION_INT >= 32200:
             ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp())
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
+            ramp_name_param.setMetadata({'widget_wrapper': {'value_hints': settings.ramp_names}})
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
@@ -95,12 +104,17 @@ class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(param)
 
         self.addParameter(
-            QgsProcessingParameterFeatureSink('OUTPUT', 'Output polygon density',
-                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None, optional=False)
+            QgsProcessingParameterFeatureSink(
+                'OUTPUT',
+                'Output polygon density',
+                type=QgsProcessing.SourceType.TypeVectorPolygon,
+                createByDefault=True,
+                defaultValue=None,
+                optional=False
+            )
         )
 
     def processAlgorithm(self, parameters, context, feedback):
-        layer = self.parameterAsLayer(parameters, 'INPUT', context)
         if 'UNIQUEID' in parameters and parameters['UNIQUEID']:
             unique_id = True
             unique_id_field = self.parameterAsString(parameters, 'UNIQUEID', context)
@@ -117,12 +131,12 @@ class StyledPolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
         ramp_mode = self.parameterAsInt(parameters, 'COLOR_RAMP_MODE', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         invert = self.parameterAsBool(parameters, 'INVERT', context)
-        
+
         results = {}
         outputs = {}
-        
+
         alg_params = {
-            'INPUT':  parameters['INPUT'],
+            'INPUT': parameters['INPUT'],
             'FILTER': filter,
             'OUTPUT': parameters['OUTPUT']
         }
