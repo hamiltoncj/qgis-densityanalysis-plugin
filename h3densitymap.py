@@ -184,7 +184,7 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, feedback):
         try:
             import h3.api.basic_int as h3
-        except Exception:
+        except ModuleNotFoundError:
             from .utils import h3InstallString
             feedback.reportError(h3InstallString)
             return {}
