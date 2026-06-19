@@ -1,0 +1,5 @@
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E501"]
+extend-select = ["E302", "E275", "E261", "W391", "W293"]
+preview = true

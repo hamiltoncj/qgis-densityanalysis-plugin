@@ -13,6 +13,7 @@
 from qgis.core import QgsApplication
 from .provider import DensityAnalysisProvider
 
+
 class DensityAnalysis(object):
     def __init__(self):
         self.provider = None
@@ -26,5 +27,3 @@ class DensityAnalysis(object):
 
     def unload(self):
         QgsApplication.processingRegistry().removeProvider(self.provider)
-
-

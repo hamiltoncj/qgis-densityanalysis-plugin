@@ -18,7 +18,6 @@ from qgis.core import (
     QgsProcessingParameterBoolean,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterField)
-import processing
 
 
 class RandomStyleAlgorithm(QgsProcessingAlgorithm):
@@ -47,7 +46,6 @@ class RandomStyleAlgorithm(QgsProcessingAlgorithm):
         layer = self.parameterAsVectorLayer(parameters, 'INPUT', context)
         attr = self.parameterAsString(parameters, 'GROUP_FIELD', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
-        renderer = layer.renderer()
         geomtype = layer.geometryType()
         idx = layer.fields().indexOf(attr)
         values = layer.uniqueValues(idx)
@@ -59,12 +57,12 @@ class RandomStyleAlgorithm(QgsProcessingAlgorithm):
             category = QgsRendererCategory(value, symbol, str(value))
             categories.append(category)
 
-        new_renderer = QgsCategorizedSymbolRenderer (attr, categories)
+        new_renderer = QgsCategorizedSymbolRenderer(attr, categories)
         ramp = QgsRandomColorRamp()
         new_renderer.updateColorRamp(ramp)
         layer.setRenderer(new_renderer)
         layer.triggerRepaint()
-        return({})
+        return ({})
 
     def group(self):
         return 'Styles'

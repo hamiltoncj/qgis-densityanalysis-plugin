@@ -14,11 +14,9 @@ from qgis.PyQt.uic import loadUiType
 from qgis.PyQt.QtCore import Qt, QTimer
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDockWidget, QAbstractItemView, QTableWidget, QTableWidgetItem
-from qgis.core import Qgis, QgsMapLayerProxyModel, QgsFieldProxyModel, QgsWkbTypes, QgsFeatureRequest, QgsCoordinateTransform, QgsProject, QgsRectangle, QgsPoint, QgsPointXY, QgsGeometry
+from qgis.core import QgsMapLayerProxyModel, QgsFieldProxyModel, QgsWkbTypes, QgsFeatureRequest, QgsCoordinateTransform, QgsProject, QgsRectangle, QgsPoint, QgsGeometry
 from qgis.gui import QgsRubberBand
-from qgis.utils import isPluginLoaded, plugins
 from .settings import settings
-import traceback
 
 MAX_LIST_SIZE = 5000
 
@@ -49,7 +47,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
         self.resultsTable.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.resultsTable.setColumnCount(2)
         self.resultsTable.setSortingEnabled(False)
-        self.resultsTable.setHorizontalHeaderLabels(['ID','Score'])
+        self.resultsTable.setHorizontalHeaderLabels(['ID', 'Score'])
         self.resultsTable.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.resultsTable.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.resultsTable.itemSelectionChanged.connect(self.select_feature)
@@ -101,7 +99,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
             self.countComboBox.blockSignals(False)
             reset_results = True
             self.density_layer = density_layer
-        
+
         score_field = self.countComboBox.currentField()
         if score_field != self.selected_score_field:
             reset_results = True
@@ -127,7 +125,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
             ids_str = ",".join(ids)
             exp = '"{}" IN ({})'.format(id_field_name, ids_str)
             density_layer.setSubsetString(exp)
-        
+
         if auto_zoom:
             density_crs = density_layer.crs()
             canvas_crs = self.canvas.mapSettings().destinationCrs()
@@ -149,7 +147,6 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
             else:  # Zoom to selected features
                 rect = xform.transform(density_layer.extent())
                 self.canvas.setExtent(rect)
-                
 
     def on_applyButton_pressed(self):
         self.resultsTable.setRowCount(0)
@@ -159,7 +156,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
         if not id_field or not score_field:
             return
 
-        request=QgsFeatureRequest().addOrderBy(score_field, ascending=False)
+        request = QgsFeatureRequest().addOrderBy(score_field, ascending=False)
         iter = density_layer.getFeatures(request)
         for i, f in enumerate(iter):
             score = f[score_field]
@@ -170,7 +167,7 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
             self.resultsTable.setItem(i, 0, item)
             try:
                 item = QTableWidgetItem('{}'.format(score))
-            except:
+            except Exception:
                 item = QTableWidgetItem('')
             self.resultsTable.setItem(i, 1, item)
             if i >= MAX_LIST_SIZE - 1:
@@ -204,4 +201,3 @@ class HeatmapAnalysis(QDockWidget, FORM_CLASS):
 
     def resetRubberbands(self):
         self.rb.reset()
-

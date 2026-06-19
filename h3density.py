@@ -11,7 +11,7 @@
 import os
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QVariant, QUrl
-from qgis.core import Qgis, QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem,  QgsFeature, QgsGeometry, QgsPointXY, QgsProject
+from qgis.core import Qgis, QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsFeature, QgsGeometry, QgsPointXY, QgsProject
 
 from qgis.core import (
     QgsProcessing,
@@ -20,8 +20,8 @@ from qgis.core import (
     QgsProcessingParameterNumber,
     QgsProcessingParameterField,
     QgsProcessingParameterFeatureSink
-    )
-import processing
+)
+
 
 class H3DensityAlgorithm(QgsProcessingAlgorithm):
 
@@ -29,8 +29,14 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', [QgsProcessing.SourceType.TypeVectorPoint])
         )
-        param = QgsProcessingParameterNumber('RESOLUTION', 'H3 Resolution',
-                type=QgsProcessingParameterNumber.Type.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)
+        param = QgsProcessingParameterNumber(
+            'RESOLUTION',
+            'H3 Resolution',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=0,
+            defaultValue=9,
+            maxValue=15,
+            optional=False)
         if Qgis.QGIS_VERSION_INT >= 31600:
             param.setHelp(
                 '''
@@ -118,8 +124,12 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
                 optional=True)
         )
         self.addParameter(
-            QgsProcessingParameterFeatureSink('OUTPUT', 'Output H3 density map',
-                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+            QgsProcessingParameterFeatureSink(
+                'OUTPUT',
+                'Output H3 density map',
+                type=QgsProcessing.SourceType.TypeVectorPolygon,
+                createByDefault=True,
+                defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -140,7 +150,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
             weight_field = self.parameterAsString(parameters, 'WEIGHT', context)
         else:
             use_weight = False
-        
+
         epsg4326 = QgsCoordinateReferenceSystem("EPSG:4326")
         fields = QgsFields()
         fields.append(QgsField('ID', QVariant.Int))
@@ -150,7 +160,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
             parameters, 'OUTPUT',
             context, fields, QgsWkbTypes.Type.Polygon, epsg4326)
         src_crs = source.sourceCrs()
-        
+
         if src_crs != epsg4326:
             transform = QgsCoordinateTransform(src_crs, epsg4326, QgsProject.instance())
 
@@ -167,7 +177,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
                     if src_crs != epsg4326:
                         pt = transform.transform(pt)
                     h = h3.latlng_to_cell(pt.y(), pt.x(), resolution)
-                    if h == 0: # Check to see if the input coordinates were invalid
+                    if h == 0:  # Check to see if the input coordinates were invalid
                         continue
                     weight = feature[weight_field]
                     if h in ghash:
@@ -187,7 +197,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
                     if src_crs != epsg4326:
                         pt = transform.transform(pt)
                     h = h3.latlng_to_cell(pt.y(), pt.x(), resolution)
-                    if h == 0: # Check to see if the input coordinates were invalid
+                    if h == 0:  # Check to see if the input coordinates were invalid
                         continue
                     if h in ghash:
                         ghash[h] += 1
@@ -205,7 +215,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
             val = ghash[key]
             try:
                 coords = h3.cell_to_boundary(key)
-            except:
+            except Exception:
                 continue
             pts = []
             for p in coords:
@@ -216,7 +226,7 @@ class H3DensityAlgorithm(QgsProcessingAlgorithm):
             f.setAttributes([cnt, h3.int_to_str(key), val])
             sink.addFeature(f)
             if cnt % 100 == 0:
-                feedback.setProgress(int(cnt * total)+85)
+                feedback.setProgress(int(cnt * total) + 85)
         return {'OUTPUT': dest_id}
 
     def group(self):

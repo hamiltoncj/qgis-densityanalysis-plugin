@@ -10,13 +10,14 @@
 """
 import os
 from qgis.PyQt import uic
-from qgis.core import Qgis, QgsStyle, QgsUnitTypes, QgsSettings
+from qgis.core import QgsStyle, QgsUnitTypes, QgsSettings
 from qgis.PyQt.QtWidgets import QDialog
 from qgis.PyQt.QtGui import QColor
 
 POLYGON_UNIT_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees", "Dimensions in pixels"]
 UNIT_LABELS = ["Kilometers", "Meters", "Miles", 'Yards', "Feet", "Nautical Miles", "Degrees"]
-COLOR_RAMP_MODE = ['Equal Count (Quantile)','Equal Interval','Logarithmic scale','Natural Breaks (Jenks)','Pretty Breaks','Standard Deviation']
+COLOR_RAMP_MODE = ['Equal Count (Quantile)', 'Equal Interval', 'Logarithmic scale', 'Natural Breaks (Jenks)', 'Pretty Breaks', 'Standard Deviation']
+
 
 def conversionToCrsUnits(selected_unit, crs_unit, value):
     if selected_unit == 0:  # Kilometers
@@ -33,7 +34,8 @@ def conversionToCrsUnits(selected_unit, crs_unit, value):
         measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceUnit.DistanceNauticalMiles, crs_unit)
     elif selected_unit == 6:  # Degrees
         measureFactor = QgsUnitTypes.fromUnitToUnitFactor(QgsUnitTypes.DistanceUnit.DistanceDegrees, crs_unit)
-    return(measureFactor * value)
+    return (measureFactor * value)
+
 
 def conversionFromCrsUnits(selected_unit, crs_unit, value):
     if selected_unit == 0:  # Kilometers
@@ -50,10 +52,12 @@ def conversionFromCrsUnits(selected_unit, crs_unit, value):
         measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceUnit.DistanceNauticalMiles)
     elif selected_unit == 6:  # Degrees
         measureFactor = QgsUnitTypes.fromUnitToUnitFactor(crs_unit, QgsUnitTypes.DistanceUnit.DistanceDegrees)
-    return(measureFactor * value)
+    return (measureFactor * value)
+
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'ui/settings.ui'))
+
 
 class Settings():
     def __init__(self):
@@ -113,7 +117,7 @@ class Settings():
         qset.setValue('/DensityAnalysis/ColorRamp', color_ramp)
         qset.setValue('/DensityAnalysis/NumRampClasses', num_ramp_classes)
         qset.setValue('/DensityAnalysis/ColorRampMode', color_ramp_mode)
-    
+
     def setDefaults(self, measurement_unit, poly_measurement_unit, default_dimension, max_image_size, line_flash_width, line_flash_color):
         self.measurement_unit = measurement_unit
         self.poly_measurement_unit = poly_measurement_unit
@@ -128,24 +132,25 @@ class Settings():
         qset.setValue('/DensityAnalysis/MaxImageSize', max_image_size)
         qset.setValue('/DensityAnalysis/LineFlashWidth', line_flash_width)
         qset.setValue('/DensityAnalysis/LineFlashColor', line_flash_color.name())
-        
-    
+
     def defaultColorRamp(self):
         # print('defaultColorRamp: {}'.format(self.color_ramp))
         return (self.color_ramp)
-        
+
     def defaultColorRampIndex(self):
         try:
             index = self.ramp_names.index(self.color_ramp)
         except Exception:
             index = 0
         # print('index: {}'.format(index))
-        return( index )
+        return (index)
 
     def colorRamps(self):
         return (self.ramp_names)
-        
+
+
 settings = Settings()
+
 
 class SettingsWidget(QDialog, FORM_CLASS):
     '''Settings Dialog box.'''
@@ -176,7 +181,11 @@ class SettingsWidget(QDialog, FORM_CLASS):
     def accept(self):
         selected_ramp = self.colorRampComboBox.currentText()
         settings.setDefaultColorRamp(selected_ramp, self.rampClassesSpinBox.value(), self.colorRampModeComboBox.currentIndex())
-        settings.setDefaults(self.unitsComboBox.currentIndex(), self.polyUnitsComboBox.currentIndex(),
-            self.defaultDimensionSpinBox.value(), self.maxImageSizeSpinBox.value(), self.lineFlashWidthSpinBox.value(),
+        settings.setDefaults(
+            self.unitsComboBox.currentIndex(),
+            self.polyUnitsComboBox.currentIndex(),
+            self.defaultDimensionSpinBox.value(),
+            self.maxImageSizeSpinBox.value(),
+            self.lineFlashWidthSpinBox.value(),
             self.lineFlashColorButton.color())
         self.close()

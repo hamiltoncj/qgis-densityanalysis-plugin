@@ -13,14 +13,13 @@ from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import Qgis, QgsStyle, QgsMapLayerType, QgsRasterBandStats, QgsColorRampShader, QgsRasterShader, QgsSingleBandPseudoColorRenderer
 from qgis.core import (
-    QgsProcessing,
     QgsProcessingAlgorithm,
     QgsProcessingParameterBoolean,
     QgsProcessingParameterEnum,
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
-    QgsProcessingParameterRasterLayer)
-import processing
+    QgsProcessingParameterRasterLayer,
+    QgsProcessingException)
 from .settings import settings
 
 
@@ -31,9 +30,12 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
                 'INPUT', 'Input raster layer')
         )
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp(),
+            ramp_name_param = QgsProcessingParameterString(
+                'RAMP_NAMES',
+                'Select color ramp',
+                defaultValue=settings.defaultColorRamp(),
                 optional=False)
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
+            ramp_name_param.setMetadata({'widget_wrapper': {'value_hints': settings.ramp_names}})
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
@@ -53,7 +55,7 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterEnum(
                 'INTERPOLATION',
                 'Interpolation',
-                options=['Discrete','Linear','Exact'],
+                options=['Discrete', 'Linear', 'Exact'],
                 defaultValue=1,
                 optional=False)
         )
@@ -61,7 +63,7 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterEnum(
                 'MODE',
                 'Mode',
-                options=['Continuous','Equal Interval','Quantile'],
+                options=['Continuous', 'Equal Interval', 'Quantile'],
                 defaultValue=2,
                 optional=False)
         )
@@ -85,29 +87,29 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
         interp = self.parameterAsInt(parameters, 'INTERPOLATION', context)
         mode = self.parameterAsInt(parameters, 'MODE', context)
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
-        
+
         rnd = layer.renderer()
         if layer.type() != QgsMapLayerType.RasterLayer or rnd.bandCount() != 1:
             feedback.reportError('This is only for single band raster images.')
             raise QgsProcessingException()
-            
-        if interp == 0: # Discrete
+
+        if interp == 0:  # Discrete
             interpolation = QgsColorRampShader.Type.Discrete
-        elif interp == 1: # Interpolated
+        elif interp == 1:  # Interpolated
             interpolation = QgsColorRampShader.Type.Interpolated
-        elif interp == 2: # Exact
+        elif interp == 2:  # Exact
             interpolation = QgsColorRampShader.Type.Exact
 
-        if mode == 0: # Continuous
+        if mode == 0:  # Continuous
             shader_mode = QgsColorRampShader.ClassificationMode.Continuous
-        elif mode == 1: # Equal Interval
+        elif mode == 1:  # Equal Interval
             shader_mode = QgsColorRampShader.ClassificationMode.EqualInterval
-        elif mode == 2: # Quantile
+        elif mode == 2:  # Quantile
             shader_mode = QgsColorRampShader.ClassificationMode.Quantile
 
         provider = layer.dataProvider()
         stats = provider.bandStatistics(1, QgsRasterBandStats.Stats.Min | QgsRasterBandStats.Stats.Max)
-        
+
         style = QgsStyle.defaultStyle()
         ramp = style.colorRamp(ramp_name)
         if invert:
@@ -126,7 +128,7 @@ class RasterStyleAlgorithm(QgsProcessingAlgorithm):
 
         layer.setRenderer(renderer)
         layer.triggerRepaint()
-        return({})
+        return ({})
 
     def group(self):
         return 'Styles'

@@ -17,7 +17,6 @@ from qgis.core import (
     QgsProcessing,
     QgsProcessingAlgorithm,
     QgsProcessingParameterBoolean,
-    QgsProcessingException,
     QgsProcessingParameterExtent,
     QgsProcessingParameterEnum,
     QgsProcessingParameterVectorLayer,
@@ -25,38 +24,56 @@ from qgis.core import (
     QgsProcessingParameterString,
     QgsProcessingParameterDefinition,
     QgsProcessingParameterRasterDestination
-    )
+)
 import processing
 from .settings import settings, POLYGON_UNIT_LABELS
+
 
 class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterVectorLayer('INPUT', 'Input polygon vector layer',
-            [QgsProcessing.SourceType.TypeVectorPolygon])
+            QgsProcessingParameterVectorLayer(
+                'INPUT',
+                'Input polygon vector layer',
+                [QgsProcessing.SourceType.TypeVectorPolygon])
         )
         self.addParameter(
             QgsProcessingParameterExtent('EXTENT', 'Grid extent (defaults to layer extent)', optional=True)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Cell width in measurement units',
-                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
+            QgsProcessingParameterNumber(
+                'GRID_CELL_WIDTH',
+                'Cell width in measurement units',
+                type=QgsProcessingParameterNumber.Type.Double,
+                defaultValue=settings.default_dimension,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Cell height in measurement units',
-                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
+            QgsProcessingParameterNumber(
+                'GRID_CELL_HEIGHT',
+                'Cell height in measurement units',
+                type=QgsProcessingParameterNumber.Type.Double,
+                defaultValue=settings.default_dimension,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum('UNITS', 'Measurement unit',
-                options=POLYGON_UNIT_LABELS, defaultValue=settings.poly_measurement_unit, optional=False)
+            QgsProcessingParameterEnum(
+                'UNITS',
+                'Measurement unit',
+                options=POLYGON_UNIT_LABELS,
+                defaultValue=settings.poly_measurement_unit,
+                optional=False)
         )
         style = QgsStyle.defaultStyle()
         self.ramp_names = style.colorRampNames()
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp(),
+            ramp_name_param = QgsProcessingParameterString(
+                'RAMP_NAMES',
+                'Select color ramp',
+                defaultValue=settings.defaultColorRamp(),
                 optional=False)
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
+            ramp_name_param.setMetadata({'widget_wrapper': {'value_hints': settings.ramp_names}})
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
@@ -72,14 +89,19 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
                 False,
                 optional=False)
         )
-        param = QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions for output image',
-            type=QgsProcessingParameterNumber.Type.Integer, minValue=1, defaultValue=settings.max_image_size, optional=False)
+        param = QgsProcessingParameterNumber(
+            'MAX_IMAGE_DIMENSION',
+            'Maximum width or height dimensions for output image',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=1,
+            defaultValue=settings.max_image_size,
+            optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterEnum(
             'INTERPOLATION',
             'Interpolation',
-            options=['Discrete','Linear','Exact'],
+            options=['Discrete', 'Linear', 'Exact'],
             defaultValue=1,
             optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
@@ -88,7 +110,7 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         param = QgsProcessingParameterEnum(
             'MODE',
             'Mode',
-            options=['Continuous','Equal Interval','Quantile'],
+            options=['Continuous', 'Equal Interval', 'Quantile'],
             defaultValue=2,
             optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
@@ -103,14 +125,14 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         self.addParameter(
-            QgsProcessingParameterRasterDestination('OUTPUT', 'Output polygon density heatmap',
-                createByDefault=True, defaultValue=None)
+            QgsProcessingParameterRasterDestination(
+                'OUTPUT',
+                'Output polygon density heatmap',
+                createByDefault=True,
+                defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
-        layer = self.parameterAsLayer(parameters, 'INPUT', context)
-        extent = self.parameterAsExtent(parameters, 'EXTENT', context)
-        extent_crs = self.parameterAsExtentCrs(parameters, 'EXTENT', context)
         cell_width = self.parameterAsDouble(parameters, 'GRID_CELL_WIDTH', context)
         cell_height = self.parameterAsDouble(parameters, 'GRID_CELL_HEIGHT', context)
         selected_units = self.parameterAsInt(parameters, 'UNITS', context)
@@ -179,4 +201,3 @@ class StyledPolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return StyledPolygonRasterDensityAlgorithm()
-

@@ -21,10 +21,10 @@ from qgis.core import (
     QgsProcessingParameterField,
     QgsProcessingParameterNumber,
     QgsProcessingParameterFeatureSink
-    )
-import processing
+)
 
 from . import geohash
+
 
 class GeohashMultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
 
@@ -32,8 +32,14 @@ class GeohashMultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterMultipleLayers('INPUT', 'Input point vector layers', QgsProcessing.SourceType.TypeVectorPoint)
         )
-        param = QgsProcessingParameterNumber('RESOLUTION', 'Geohash resolution',
-                type=QgsProcessingParameterNumber.Type.Integer, minValue=1, defaultValue=6, maxValue=12, optional=False)
+        param = QgsProcessingParameterNumber(
+            'RESOLUTION',
+            'Geohash resolution',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=1,
+            defaultValue=6,
+            maxValue=12,
+            optional=False)
         if Qgis.QGIS_VERSION_INT >= 31600:
             param.setHelp(
                 '''
@@ -105,8 +111,12 @@ class GeohashMultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
                 optional=True)
         )
         self.addParameter(
-            QgsProcessingParameterFeatureSink('OUTPUT', 'Output geohash density map',
-                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+            QgsProcessingParameterFeatureSink(
+                'OUTPUT',
+                'Output geohash density map',
+                type=QgsProcessing.SourceType.TypeVectorPolygon,
+                createByDefault=True,
+                defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -119,7 +129,7 @@ class GeohashMultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
             weight_field = self.parameterAsString(parameters, 'WEIGHT', context)
         else:
             use_weight = False
-        
+
         epsg4326 = QgsCoordinateReferenceSystem("EPSG:4326")
         fields = QgsFields()
         fields.append(QgsField('ID', QVariant.Int))
@@ -135,7 +145,7 @@ class GeohashMultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
         incremental = 85 / num_layers
         for layer in layer_list:
             src_crs = layer.sourceCrs()
-            
+
             if src_crs != epsg4326:
                 transform = QgsCoordinateTransform(src_crs, epsg4326, QgsProject.instance())
 
@@ -191,7 +201,7 @@ class GeohashMultiLayerDensityAlgorithm(QgsProcessingAlgorithm):
             f.setAttributes([cnt, key, val])
             sink.addFeature(f)
             if cnt % 100 == 0:
-                feedback.setProgress(int(cnt * total)+85)
+                feedback.setProgress(int(cnt * total) + 85)
         return {'OUTPUT': dest_id}
 
     def group(self):

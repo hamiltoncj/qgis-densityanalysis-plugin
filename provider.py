@@ -30,6 +30,7 @@ from .styledkde import StyledKdeAlgorithm
 from .polyvectordensity import PolygonVectorDensityAlgorithm
 from .styledpolyvectordensity import StyledPolygonVectorDensityAlgorithm
 
+
 class DensityAnalysisProvider(QgsProcessingProvider):
 
     def unload(self):

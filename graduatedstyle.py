@@ -21,7 +21,6 @@ from qgis.core import (
     QgsProcessingParameterString,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterField)
-import processing
 from .settings import settings, COLOR_RAMP_MODE
 
 
@@ -29,7 +28,7 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterVectorLayer(
-                'INPUT', 'Input map layer', [QgsProcessing.SourceType.TypeVectorAnyGeometry ])
+                'INPUT', 'Input map layer', [QgsProcessing.SourceType.TypeVectorAnyGeometry])
         )
         self.addParameter(
             QgsProcessingParameterField(
@@ -42,7 +41,7 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         )
         if Qgis.QGIS_VERSION_INT >= 32200:
             ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp())
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
+            ramp_name_param.setMetadata({'widget_wrapper': {'value_hints': settings.ramp_names}})
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
@@ -95,18 +94,18 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         num_classes = self.parameterAsInt(parameters, 'CLASSES', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         invert = self.parameterAsBool(parameters, 'INVERT', context)
-        
-        if mode == 0: # Quantile
+
+        if mode == 0:  # Quantile
             grad_mode = QgsGraduatedSymbolRenderer.Mode.Quantile
-        elif mode == 1: # Equal Interval
+        elif mode == 1:  # Equal Interval
             grad_mode = QgsGraduatedSymbolRenderer.Mode.EqualInterval
-        elif mode == 2: # Logarithmic scale
+        elif mode == 2:  # Logarithmic scale
             grad_mode = QgsGraduatedSymbolRenderer.Mode.Quantile
-        elif mode == 3: # Natural Breaks (Jenks)
+        elif mode == 3:  # Natural Breaks (Jenks)
             grad_mode = QgsGraduatedSymbolRenderer.Mode.Jenks
-        elif mode == 4: # Pretty Breaks
+        elif mode == 4:  # Pretty Breaks
             grad_mode = QgsGraduatedSymbolRenderer.Mode.Pretty
-        elif mode == 5: # Standard Deviation
+        elif mode == 5:  # Standard Deviation
             grad_mode = QgsGraduatedSymbolRenderer.Mode.StdDev
 
         geomtype = layer.geometryType()
@@ -118,12 +117,12 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         if invert:
             ramp.invert()
         new_renderer = QgsGraduatedSymbolRenderer.createRenderer(
-            layer, # The layer
-            attr, # Attribute name
-            num_classes, # Number of classes
-            grad_mode, # Mode
-            symbol, # QgsSymbol
-            ramp # Our color ramp
+            layer,  # The layer
+            attr,  # Attribute name
+            num_classes,  # Number of classes
+            grad_mode,  # Mode
+            symbol,  # QgsSymbol
+            ramp  # Our color ramp
         )
         if mode == 2:
             new_renderer.setClassificationMethod(QgsClassificationLogarithmic())
@@ -132,7 +131,7 @@ class GraduatedStyleAlgorithm(QgsProcessingAlgorithm):
         # feedback.pushInfo('dump: {}'.format(new_renderer.dump()))
         # new_renderer.updateClasses(layer, num_classes)
         layer.triggerRepaint()
-        return({})
+        return ({})
 
     def group(self):
         return 'Styles'

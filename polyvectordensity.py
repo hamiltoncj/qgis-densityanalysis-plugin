@@ -20,15 +20,18 @@ from qgis.core import (
     QgsProcessingParameterNumber,
     QgsProcessingMultiStepFeedback,
     QgsProcessingParameterFeatureSink
-    )
+)
 import processing
+
 
 class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterVectorLayer('INPUT', 'Input polygon layer', 
-                [QgsProcessing.SourceType.TypeVectorPolygon ],
+            QgsProcessingParameterVectorLayer(
+                'INPUT',
+                'Input polygon layer',
+                [QgsProcessing.SourceType.TypeVectorPolygon],
                 optional=False
             )
         )
@@ -42,16 +45,25 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
             )
         )
         self.addParameter(
-            QgsProcessingParameterNumber('FILTER', 'Keep polygons with overlap counts >= to this',
-                type=QgsProcessingParameterNumber.Type.Integer, defaultValue=1, minValue=1, optional=False)
+            QgsProcessingParameterNumber(
+                'FILTER',
+                'Keep polygons with overlap counts >= to this',
+                type=QgsProcessingParameterNumber.Type.Integer,
+                defaultValue=1,
+                minValue=1,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterFeatureSink('OUTPUT', 'Output polygon density',
-                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None, optional=False)
+            QgsProcessingParameterFeatureSink(
+                'OUTPUT',
+                'Output polygon density',
+                type=QgsProcessing.SourceType.TypeVectorPolygon,
+                createByDefault=True,
+                defaultValue=None,
+                optional=False)
         )
 
     def processAlgorithm(self, parameters, context, model_feedback):
-        layer = self.parameterAsLayer(parameters, 'INPUT', context)
         if 'UNIQUEID' in parameters and parameters['UNIQUEID']:
             unique_id = True
             unique_id_field = self.parameterAsString(parameters, 'UNIQUEID', context)
@@ -59,19 +71,18 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
             unique_id = False
         filter = self.parameterAsInt(parameters, 'FILTER', context)
 
-
         # Use a multi-step feedback, so that individual child algorithm progress reports are adjusted for the
         # overall progress through the model
         feedback = QgsProcessingMultiStepFeedback(4, model_feedback)
         results = {}
         outputs = {}
-        
+
         # Run Union algorithm
         alg_params = {
             'INPUT': parameters['INPUT'],
-            'OVERLAY':None,
-            'OVERLAY_FIELDS_PREFIX':'',
-            'GRID_SIZE':None,
+            'OVERLAY': None,
+            'OVERLAY_FIELDS_PREFIX': '',
+            'GRID_SIZE': None,
             'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT
         }
         outputs['Union'] = processing.run('native:union', alg_params, context=context, feedback=feedback, is_child_algorithm=True)
@@ -82,9 +93,9 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
 
         # Count points in polygon
         if unique_id:
-            unique_param = [{'aggregate': 'count','delimiter': ',','input': '1','length': 0,'name': 'NUMPOINTS','precision': 0,'sub_type': 0,'type': 4,'type_name': 'int8'},{'aggregate': 'concatenate','delimiter': ',','input': 'to_string("'+unique_id_field+'")','length': 0,'name': 'ID_LIST','precision': 0,'sub_type': 0,'type': 10,'type_name': 'text'}]
+            unique_param = [{'aggregate': 'count', 'delimiter': ',', 'input': '1', 'length': 0, 'name': 'NUMPOINTS', 'precision': 0, 'sub_type': 0, 'type': 4, 'type_name': 'int8'}, {'aggregate': 'concatenate', 'delimiter': ',', 'input': 'to_string("' + unique_id_field + '")', 'length': 0, 'name': 'ID_LIST', 'precision': 0, 'sub_type': 0, 'type': 10, 'type_name': 'text'}]
         else:
-            unique_param = [{'aggregate': 'count','delimiter': ',','input': '1','length': 0,'name': 'NUMPOINTS','precision': 0,'sub_type': 0,'type': 4,'type_name': 'int8'}]
+            unique_param = [{'aggregate': 'count', 'delimiter': ',', 'input': '1', 'length': 0, 'name': 'NUMPOINTS', 'precision': 0, 'sub_type': 0, 'type': 4, 'type_name': 'int8'}]
         # Check to see if the polygons are going to be filtered out. If not (filter == 1) we will skip
         # the last algorithm.
         if filter == 1:
@@ -93,7 +104,7 @@ class PolygonVectorDensityAlgorithm(QgsProcessingAlgorithm):
             alg_output = QgsProcessing.TEMPORARY_OUTPUT
         alg_params = {
             'INPUT': outputs['Union']['OUTPUT'],
-            'GROUP_BY':'$geometry',
+            'GROUP_BY': '$geometry',
             'AGGREGATES': unique_param,
             'OUTPUT': alg_output
         }

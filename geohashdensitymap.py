@@ -24,11 +24,11 @@ from qgis.core import (
     QgsProcessingParameterString,
     QgsProcessingParameterDefinition,
     QgsProcessingParameterFeatureSink
-    )
+)
 import processing
 
-from . import geohash
 from .settings import settings, COLOR_RAMP_MODE
+
 
 class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
 
@@ -36,8 +36,14 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', [QgsProcessing.SourceType.TypeVectorPoint])
         )
-        param = QgsProcessingParameterNumber('RESOLUTION', 'Geohash resolution',
-                type=QgsProcessingParameterNumber.Type.Integer, minValue=1, defaultValue=6, maxValue=12, optional=False)
+        param = QgsProcessingParameterNumber(
+            'RESOLUTION',
+            'Geohash resolution',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=1,
+            defaultValue=6,
+            maxValue=12,
+            optional=False)
         if Qgis.QGIS_VERSION_INT >= 31600:
             param.setHelp(
                 '''
@@ -102,7 +108,7 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(param)
         if Qgis.QGIS_VERSION_INT >= 32200:
             ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp())
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
+            ramp_name_param.setMetadata({'widget_wrapper': {'value_hints': settings.ramp_names}})
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
@@ -153,8 +159,12 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(param)
 
         self.addParameter(
-            QgsProcessingParameterFeatureSink('OUTPUT', 'Output geohash density map',
-                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+            QgsProcessingParameterFeatureSink(
+                'OUTPUT',
+                'Output geohash density map',
+                type=QgsProcessing.SourceType.TypeVectorPolygon,
+                createByDefault=True,
+                defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -174,12 +184,12 @@ class GeohashDensityMapAlgorithm(QgsProcessingAlgorithm):
         ramp_mode = self.parameterAsInt(parameters, 'COLOR_RAMP_MODE', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         invert = self.parameterAsBool(parameters, 'INVERT', context)
-        
+
         results = {}
         outputs = {}
 
         alg_params = {
-            'INPUT':  parameters['INPUT'],
+            'INPUT': parameters['INPUT'],
             'RESOLUTION': resolution,
             'OUTPUT': parameters['OUTPUT']
         }

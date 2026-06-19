@@ -24,17 +24,24 @@ from qgis.core import (
     QgsProcessingParameterString,
     QgsProcessingParameterDefinition,
     QgsProcessingParameterFeatureSink
-    )
+)
 import processing
 from .settings import settings, COLOR_RAMP_MODE
+
 
 class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterFeatureSource('INPUT', 'Input point vector layer', [QgsProcessing.SourceType.TypeVectorPoint])
         )
-        param = QgsProcessingParameterNumber('RESOLUTION', 'H3 Resolution',
-                type=QgsProcessingParameterNumber.Type.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)
+        param = QgsProcessingParameterNumber(
+            'RESOLUTION',
+            'H3 Resolution',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=0,
+            defaultValue=9,
+            maxValue=15,
+            optional=False)
         if Qgis.QGIS_VERSION_INT >= 31600:
             param.setHelp(
                 '''
@@ -115,7 +122,7 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(param)
         if Qgis.QGIS_VERSION_INT >= 32200:
             ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp())
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
+            ramp_name_param.setMetadata({'widget_wrapper': {'value_hints': settings.ramp_names}})
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
@@ -166,8 +173,12 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(param)
 
         self.addParameter(
-            QgsProcessingParameterFeatureSink('OUTPUT', 'Output H3 density map',
-                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+            QgsProcessingParameterFeatureSink(
+                'OUTPUT',
+                'Output H3 density map',
+                type=QgsProcessing.SourceType.TypeVectorPolygon,
+                createByDefault=True,
+                defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -193,12 +204,12 @@ class H3DensityMapAlgorithm(QgsProcessingAlgorithm):
         ramp_mode = self.parameterAsInt(parameters, 'COLOR_RAMP_MODE', context)
         no_outline = self.parameterAsBool(parameters, 'NO_OUTLINE', context)
         invert = self.parameterAsBool(parameters, 'INVERT', context)
-        
+
         results = {}
         outputs = {}
-        
+
         alg_params = {
-            'INPUT':  parameters['INPUT'],
+            'INPUT': parameters['INPUT'],
             'RESOLUTION': resolution,
             'OUTPUT': parameters['OUTPUT']
         }

@@ -21,6 +21,7 @@ from .utils import h3InstallString
 
 import os
 
+
 class DensityAnalysis(object):
     heatmap_dialog = None
     style_Layers_dialog = None
@@ -78,7 +79,7 @@ class DensityAnalysis(object):
 
         icon = QIcon(os.path.dirname(__file__) + '/icons/h3multidensity.svg')
         self.h3MultiDensityGridAction = menu.addAction(icon, 'H3 multi-layer density grid', self.h3MultiDensityGrid)
-        
+
         icon = QIcon(os.path.dirname(__file__) + '/icons/h3grid.svg')
         self.h3GridAction = menu.addAction(icon, 'H3 grid', self.h3Grid)
 
@@ -222,21 +223,21 @@ class DensityAnalysis(object):
 
     def checkForH3(self):
         if self.h3_installed:
-            return(True)
+            return (True)
         try:
             import h3
             vers = h3.versions()["python"].split(".")
             maj = int(vers[0])
-            if maj >= 4: # This works with H3 version 4 or greater
+            if maj >= 4:  # This works with H3 version 4 or greater
                 self.h3_installed = True
             else:
                 self.h3_installed = False
-            return(self.h3_installed)
+            return (self.h3_installed)
         except Exception:
             pass
         # H3 is not available
         QMessageBox.information(self.iface.mainWindow(), 'H3 Install Instructions', h3InstallString)
-        return(False)
+        return (False)
 
     def h3Algorithm(self):
         if self.checkForH3():
@@ -245,15 +246,15 @@ class DensityAnalysis(object):
     def h3MultiAlgorithm(self):
         if self.checkForH3():
             processing.execAlgorithmDialog('densityanalysis:h3multidensitymap', {})
-    
+
     def h3DensityGrid(self):
         if self.checkForH3():
             processing.execAlgorithmDialog('densityanalysis:h3density', {})
-    
+
     def h3MultiDensityGrid(self):
         if self.checkForH3():
             processing.execAlgorithmDialog('densityanalysis:h3multidensity', {})
-    
+
     def h3Grid(self):
         if self.checkForH3():
             processing.execAlgorithmDialog('densityanalysis:h3grid', {})
@@ -284,13 +285,13 @@ class DensityAnalysis(object):
             from .style2layers import StyleToLayers
             self.style_Layers_dialog = StyleToLayers(self.iface, self.iface.mainWindow())
         self.style_Layers_dialog.show()
-    
+
     def geohashDensityGrid(self):
         processing.execAlgorithmDialog('densityanalysis:geohashdensity', {})
-    
+
     def geohashMultiDensityGrid(self):
         processing.execAlgorithmDialog('densityanalysis:geohashmultidensity', {})
-    
+
     def kdeAlgorithm(self):
         processing.execAlgorithmDialog('densityanalysis:styledkde', {})
 
@@ -304,5 +305,3 @@ class DensityAnalysis(object):
         import webbrowser
         url = QUrl.fromLocalFile(os.path.dirname(__file__) + "/index.html").toString()
         webbrowser.open(url, new=2)
-
-

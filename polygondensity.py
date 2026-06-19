@@ -24,38 +24,61 @@ from qgis.core import (
     QgsProcessingParameterNumber,
     QgsProcessingParameterDefinition,
     QgsProcessingParameterRasterDestination
-    )
+)
 import processing
+
 
 class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterVectorLayer('INPUT', 'Input polygon vector layer',
-            [QgsProcessing.SourceType.TypeVectorPolygon])
+            QgsProcessingParameterVectorLayer(
+                'INPUT',
+                'Input polygon vector layer',
+                [QgsProcessing.SourceType.TypeVectorPolygon])
         )
         self.addParameter(
             QgsProcessingParameterExtent('EXTENT', 'Grid extent (defaults to layer extent)', optional=True)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Cell width in measurement units',
-                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
+            QgsProcessingParameterNumber(
+                'GRID_CELL_WIDTH',
+                'Cell width in measurement units',
+                type=QgsProcessingParameterNumber.Type.Double,
+                defaultValue=settings.default_dimension,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Cell height in measurement units',
-                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
+            QgsProcessingParameterNumber(
+                'GRID_CELL_HEIGHT',
+                'Cell height in measurement units',
+                type=QgsProcessingParameterNumber.Type.Double,
+                defaultValue=settings.default_dimension,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum('UNITS', 'Measurement unit',
-                options=POLYGON_UNIT_LABELS, defaultValue=settings.poly_measurement_unit, optional=False)
+            QgsProcessingParameterEnum(
+                'UNITS',
+                'Measurement unit',
+                options=POLYGON_UNIT_LABELS,
+                defaultValue=settings.poly_measurement_unit,
+                optional=False)
         )
-        param = QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions for output image',
-            type=QgsProcessingParameterNumber.Type.Integer, minValue=1, defaultValue=settings.max_image_size, optional=False)
+        param = QgsProcessingParameterNumber(
+            'MAX_IMAGE_DIMENSION',
+            'Maximum width or height dimensions for output image',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=1,
+            defaultValue=settings.max_image_size,
+            optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         self.addParameter(
-            QgsProcessingParameterRasterDestination('OUTPUT', 'Output polygon density heatmap',
-                createByDefault=True, defaultValue=None)
+            QgsProcessingParameterRasterDestination(
+                'OUTPUT',
+                'Output polygon density heatmap',
+                createByDefault=True,
+                defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -71,12 +94,12 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         if extent.isNull():
             extent = layer.sourceExtent()
             extent_crs = layer_crs
-        
+
         if layer_crs != extent_crs:
             transform = QgsCoordinateTransform(extent_crs, layer_crs, QgsProject.instance())
             extent = transform.transformBoundingBox(extent)
             extent_crs = layer_crs
-            
+
         if selected_units == 7:
             # This is the exact width and height of the output image
             width = int(cell_width)
@@ -103,10 +126,10 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
         if width == 0 or height == 0:
             feedback.reportError('Cell dimensions are too large and return an image dimenson of 0.')
             raise QgsProcessingException()
-                
+
         feedback.pushInfo('Output image width: {}'.format(width))
         feedback.pushInfo('Output image height: {}'.format(height))
-        
+
         outputs = {}
         results = {}
 
@@ -155,4 +178,3 @@ class PolygonRasterDensityAlgorithm(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return PolygonRasterDensityAlgorithm()
-

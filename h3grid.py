@@ -11,7 +11,7 @@
 import os
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QVariant, QUrl
-from qgis.core import Qgis, QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem,  QgsFeature, QgsGeometry, QgsPointXY, QgsProject
+from qgis.core import Qgis, QgsWkbTypes, QgsFields, QgsField, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsFeature, QgsGeometry, QgsPointXY, QgsProject
 
 from qgis.core import (
     QgsProcessing,
@@ -20,8 +20,8 @@ from qgis.core import (
     QgsProcessingParameterNumber,
     QgsProcessingParameterExtent,
     QgsProcessingParameterFeatureSink
-    )
-import processing
+)
+
 
 class H3GridAlgorithm(QgsProcessingAlgorithm):
 
@@ -29,8 +29,14 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterExtent('EXTENT', 'Grid extent', optional=False)
         )
-        param = QgsProcessingParameterNumber('RESOLUTION', 'H3 Resolution',
-                type=QgsProcessingParameterNumber.Type.Integer, minValue=0, defaultValue=9, maxValue=15, optional=False)
+        param = QgsProcessingParameterNumber(
+            'RESOLUTION',
+            'H3 Resolution',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=0,
+            defaultValue=9,
+            maxValue=15,
+            optional=False)
         if Qgis.QGIS_VERSION_INT >= 31600:
             param.setHelp(
                 '''
@@ -110,8 +116,12 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
             )
         self.addParameter(param)
         self.addParameter(
-            QgsProcessingParameterFeatureSink('OUTPUT', 'Output H3 grid',
-                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+            QgsProcessingParameterFeatureSink(
+                'OUTPUT',
+                'Output H3 grid',
+                type=QgsProcessing.SourceType.TypeVectorPolygon,
+                createByDefault=True,
+                defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -130,7 +140,7 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
         resolution = self.parameterAsInt(parameters, 'RESOLUTION', context)
         if resolution < 0 or resolution > 15:
             raise QgsProcessingException('Invalid input resolution')
-        
+
         epsg4326 = QgsCoordinateReferenceSystem("EPSG:4326")
         fields = QgsFields()
         fields.append(QgsField('ID', QVariant.Int))
@@ -138,7 +148,7 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
         (sink, dest_id) = self.parameterAsSink(
             parameters, 'OUTPUT',
             context, fields, QgsWkbTypes.Type.Polygon, epsg4326)
-        
+
         if extent_crs != epsg4326:
             # The extent needs to be in EPSG:4326
             transform = QgsCoordinateTransform(extent_crs, epsg4326, QgsProject.instance())
@@ -164,8 +174,8 @@ class H3GridAlgorithm(QgsProcessingAlgorithm):
             f.setAttributes([i, h3str])
             sink.addFeature(f)
             if i % 100 == 0:
-                feedback.setProgress(int(i * total)+50)
-            
+                feedback.setProgress(int(i * total) + 50)
+
         return {'OUTPUT': dest_id}
 
     def group(self):

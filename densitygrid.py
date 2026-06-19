@@ -11,7 +11,7 @@
 import os
 from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import Qgis, QgsStyle
+from qgis.core import Qgis
 
 from qgis.core import (
     QgsProcessing,
@@ -27,41 +27,60 @@ from qgis.core import (
     QgsProcessingParameterString,
     QgsProcessingParameterDefinition,
     QgsProcessingParameterFeatureSink
-    )
+)
 import processing
 from .settings import settings, UNIT_LABELS, COLOR_RAMP_MODE, conversionToCrsUnits, conversionFromCrsUnits
+
 
 class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterVectorLayer('INPUT', 'Input point vector layer', 
-            [QgsProcessing.SourceType.TypeVectorPoint])
+            QgsProcessingParameterVectorLayer(
+                'INPUT',
+                'Input point vector layer',
+                [QgsProcessing.SourceType.TypeVectorPoint]
+            )
         )
         self.addParameter(
             QgsProcessingParameterExtent('EXTENT', 'Grid extent (defaults to layer extent)', optional=True)
         )
         self.addParameter(
-            QgsProcessingParameterEnum('GRID_TYPE', 'Grid type',
-                options=['Rectangle','Diamond','Hexagon'],
-                defaultValue=2, optional=False)
+            QgsProcessingParameterEnum(
+                'GRID_TYPE',
+                'Grid type',
+                options=['Rectangle', 'Diamond', 'Hexagon'],
+                defaultValue=2,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_WIDTH', 'Cell width in measurement units',
-                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
+            QgsProcessingParameterNumber(
+                'GRID_CELL_WIDTH',
+                'Cell width in measurement units',
+                type=QgsProcessingParameterNumber.Type.Double,
+                defaultValue=settings.default_dimension,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('GRID_CELL_HEIGHT', 'Cell height in measurement units',
-                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
+            QgsProcessingParameterNumber(
+                'GRID_CELL_HEIGHT',
+                'Cell height in measurement units',
+                type=QgsProcessingParameterNumber.Type.Double,
+                defaultValue=settings.default_dimension,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum('UNITS', 'Measurement unit',
-                options=UNIT_LABELS, defaultValue=settings.measurement_unit, optional=False)
+            QgsProcessingParameterEnum(
+                'UNITS',
+                'Measurement unit',
+                options=UNIT_LABELS,
+                defaultValue=settings.measurement_unit,
+                optional=False)
         )
 
         if Qgis.QGIS_VERSION_INT >= 32200:
             ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp())
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
+            ramp_name_param.setMetadata({'widget_wrapper': {'value_hints': settings.ramp_names}})
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
@@ -78,12 +97,21 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
                 optional=False)
         )
 
-        param = QgsProcessingParameterNumber('MIN_GRID_COUNT', 'Minimum cell histogram count',
-            type=QgsProcessingParameterNumber.Type.Integer, minValue=0, defaultValue=1)
+        param = QgsProcessingParameterNumber(
+            'MIN_GRID_COUNT',
+            'Minimum cell histogram count',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=0,
+            defaultValue=1)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
-        param = QgsProcessingParameterNumber('MAX_GRID_SIZE', 'Maximum grid width or height',
-            type=QgsProcessingParameterNumber.Type.Integer, minValue=1, defaultValue=1000, optional=False)
+        param = QgsProcessingParameterNumber(
+            'MAX_GRID_SIZE',
+            'Maximum grid width or height',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=1,
+            defaultValue=1000,
+            optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterField(
@@ -120,8 +148,12 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(param)
 
         self.addParameter(
-            QgsProcessingParameterFeatureSink('OUTPUT', 'Output density heatmap',
-                type=QgsProcessing.SourceType.TypeVectorPolygon, createByDefault=True, defaultValue=None)
+            QgsProcessingParameterFeatureSink(
+                'OUTPUT',
+                'Output density heatmap',
+                type=QgsProcessing.SourceType.TypeVectorPolygon,
+                createByDefault=True,
+                defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, model_feedback):
@@ -152,7 +184,7 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
             weight_field = self.parameterAsString(parameters, 'WEIGHT', context)
         else:
             use_weight = False
-        
+
         # Determine the width and height in extent units
         extent_units = extent_crs.mapUnits()
         cell_width_extent = conversionToCrsUnits(selected_units, extent_units, cell_width)
@@ -187,7 +219,7 @@ class StyledDensityGridAlgorithm(QgsProcessingAlgorithm):
         feedback = QgsProcessingMultiStepFeedback(4, model_feedback)
         results = {}
         outputs = {}
-        
+
         # Create grid
         alg_params = {
             'CRS': 'ProjectCrs',

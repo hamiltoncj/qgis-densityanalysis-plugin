@@ -11,7 +11,7 @@
 import os
 from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import Qgis, QgsStyle, QgsUnitTypes, QgsProject
+from qgis.core import Qgis, QgsUnitTypes
 
 from qgis.core import (
     QgsProcessing,
@@ -24,34 +24,53 @@ from qgis.core import (
     QgsProcessingParameterString,
     QgsProcessingParameterDefinition,
     QgsProcessingParameterRasterDestination
-    )
+)
 import processing
 from .settings import settings, UNIT_LABELS, conversionToCrsUnits, conversionFromCrsUnits
+
 
 class StyledKdeAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
         self.addParameter(
-            QgsProcessingParameterVectorLayer('INPUT', 'Input point layer',
-            [QgsProcessing.SourceType.TypeVectorPoint])
+            QgsProcessingParameterVectorLayer(
+                'INPUT',
+                'Input point layer',
+                [QgsProcessing.SourceType.TypeVectorPoint])
         )
         self.addParameter(
-            QgsProcessingParameterNumber('PIXEL_SIZE', 'Cell/pixel dimension in measurement units',
-                type=QgsProcessingParameterNumber.Type.Double, defaultValue=settings.default_dimension, optional=False)
+            QgsProcessingParameterNumber(
+                'PIXEL_SIZE',
+                'Cell/pixel dimension in measurement units',
+                type=QgsProcessingParameterNumber.Type.Double,
+                defaultValue=settings.default_dimension,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterNumber('KERNEL_RADIUS', 'Kernel radius in measurement units',
-                type=QgsProcessingParameterNumber.Type.Double, minValue=0, defaultValue=settings.default_dimension * 2, optional=False)
+            QgsProcessingParameterNumber(
+                'KERNEL_RADIUS',
+                'Kernel radius in measurement units',
+                type=QgsProcessingParameterNumber.Type.Double,
+                minValue=0,
+                defaultValue=settings.default_dimension * 2,
+                optional=False)
         )
         self.addParameter(
-            QgsProcessingParameterEnum('UNITS', 'Measurement unit',
-                options=UNIT_LABELS, defaultValue=settings.measurement_unit, optional=False)
+            QgsProcessingParameterEnum(
+                'UNITS',
+                'Measurement unit',
+                options=UNIT_LABELS,
+                defaultValue=settings.measurement_unit,
+                optional=False)
         )
 
         if Qgis.QGIS_VERSION_INT >= 32200:
-            ramp_name_param = QgsProcessingParameterString('RAMP_NAMES', 'Select color ramp', defaultValue=settings.defaultColorRamp(),
+            ramp_name_param = QgsProcessingParameterString(
+                'RAMP_NAMES',
+                'Select color ramp',
+                defaultValue=settings.defaultColorRamp(),
                 optional=False)
-            ramp_name_param.setMetadata( {'widget_wrapper': {'value_hints': settings.ramp_names } } )
+            ramp_name_param.setMetadata({'widget_wrapper': {'value_hints': settings.ramp_names}})
         else:
             ramp_name_param = QgsProcessingParameterEnum(
                 'RAMP_NAMES',
@@ -67,26 +86,45 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
                 False,
                 optional=False)
         )
-        param = QgsProcessingParameterNumber('MAX_IMAGE_DIMENSION', 'Maximum width or height dimensions of output image',
-            type=QgsProcessingParameterNumber.Type.Integer, minValue=1, defaultValue=settings.max_image_size, optional=False)
+        param = QgsProcessingParameterNumber(
+            'MAX_IMAGE_DIMENSION',
+            'Maximum width or height dimensions of output image',
+            type=QgsProcessingParameterNumber.Type.Integer,
+            minValue=1,
+            defaultValue=settings.max_image_size,
+            optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
-        param = QgsProcessingParameterEnum('KERNEL', 'Kernel shape',
-            options=['Quartic', 'Triangular', 'Uniform', 'Triweight', 'Epanechnikov'], defaultValue=0, optional=False)
+        param = QgsProcessingParameterEnum(
+            'KERNEL',
+            'Kernel shape',
+            options=['Quartic', 'Triangular', 'Uniform', 'Triweight', 'Epanechnikov'],
+            defaultValue=0,
+            optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
-        param = QgsProcessingParameterNumber('DECAY', 'Decay ratio (Triangular kernels only)',
-            type=QgsProcessingParameterNumber.Type.Double, defaultValue=0, minValue=-100, maxValue=100, optional=False)
+        param = QgsProcessingParameterNumber(
+            'DECAY',
+            'Decay ratio (Triangular kernels only)',
+            type=QgsProcessingParameterNumber.Type.Double,
+            defaultValue=0,
+            minValue=-100,
+            maxValue=100,
+            optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
-        param = QgsProcessingParameterEnum('OUTPUT_VALUE', 'Output value scaling',
-            options=['Raw','Scaled'], defaultValue=0, optional=False)
+        param = QgsProcessingParameterEnum(
+            'OUTPUT_VALUE',
+            'Output value scaling',
+            options=['Raw', 'Scaled'],
+            defaultValue=0,
+            optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         param = QgsProcessingParameterEnum(
             'INTERPOLATION',
             'Interpolation',
-            options=['Discrete','Linear','Exact'],
+            options=['Discrete', 'Linear', 'Exact'],
             defaultValue=1,
             optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
@@ -94,7 +132,7 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
         param = QgsProcessingParameterEnum(
             'MODE',
             'Mode',
-            options=['Continuous','Equal Interval','Quantile'],
+            options=['Continuous', 'Equal Interval', 'Quantile'],
             defaultValue=2,
             optional=False)
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
@@ -109,8 +147,11 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
         param.setFlags(param.flags() | QgsProcessingParameterDefinition.Flag.FlagAdvanced)
         self.addParameter(param)
         self.addParameter(
-            QgsProcessingParameterRasterDestination('OUTPUT', 'Output kernel density heatmap',
-                createByDefault=True, defaultValue=None)
+            QgsProcessingParameterRasterDestination(
+                'OUTPUT',
+                'Output kernel density heatmap',
+                createByDefault=True,
+                defaultValue=None)
         )
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -133,10 +174,10 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
 
         layer_crs = layer.sourceCrs()
         extent = layer.sourceExtent()
-        
+
         layer_units = layer_crs.mapUnits()
         radius = conversionToCrsUnits(units, layer_units, radius)
-            
+
         # Determine the width and height in extent units
         pixel_size_extent = conversionToCrsUnits(units, layer_units, pixel_size)
         # Add one additional cell, half on each side to better encapsulate the data
@@ -153,10 +194,10 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
             raise QgsProcessingException()
         if width == 0 or height == 0:
             raise QgsProcessingException('Cell dimensions are too large and return an image dimenson of 0.')
-                
+
         feedback.pushInfo('Output image width: {}'.format(width))
         feedback.pushInfo('Output image height: {}'.format(height))
-        
+
         results = {}
         outputs = {}
 
@@ -216,4 +257,3 @@ class StyledKdeAlgorithm(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return StyledKdeAlgorithm()
-
